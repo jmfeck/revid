@@ -6,7 +6,7 @@
 def test_version():
     import revid
 
-    assert revid.__version__ == "0.1.0"
+    assert revid.__version__ == "0.1.1"
 
 
 def test_read_function_exists():
