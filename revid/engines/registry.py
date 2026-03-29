@@ -42,5 +42,5 @@ def _try_import(module: str) -> None:
     """Try to import a module, silently skip if dependencies are missing."""
     try:
         __import__(module)
-    except ImportError:
+    except (ImportError, AttributeError):
         pass

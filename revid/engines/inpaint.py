@@ -15,10 +15,13 @@ except ImportError:
     Image = None
 
 
-def _load_mask(mask_path: str, h: int, w: int) -> np.ndarray:
+def _load_mask(mask_path: str, h: int, w: int):
     """Load and resize a binary mask to match frame dimensions."""
-    mask = np.array(Image.open(mask_path).convert("L").resize((w, h)))
-    return (mask > 127).astype(np.float32)
+    import numpy as _np
+    from PIL import Image as _Image
+
+    mask = _np.array(_Image.open(mask_path).convert("L").resize((w, h)))
+    return (mask > 127).astype(_np.float32)
 
 
 # =============================================================================
