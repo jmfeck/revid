@@ -9,10 +9,14 @@ and warp frames to produce stabilized output.
 import glob
 import os
 
-import numpy as np
-from PIL import Image
-
 from revid.engines.registry import register
+
+try:
+    import numpy as np
+    from PIL import Image
+except ImportError:
+    np = None
+    Image = None
 
 
 def _stabilize_with_flow_model(model, input_dir: str, output_dir: str, smoothing: int = 30):

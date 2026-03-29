@@ -5,10 +5,14 @@
 import glob
 import os
 
-import numpy as np
-from PIL import Image
-
 from revid.engines.registry import register
+
+try:
+    import numpy as np
+    from PIL import Image
+except ImportError:
+    np = None
+    Image = None
 
 
 def _setup_torch():

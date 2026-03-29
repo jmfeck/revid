@@ -8,10 +8,14 @@ Uses PyTorch CUDA for inference. Falls back to ncnn-vulkan binary if available.
 import glob
 import os
 
-import numpy as np
-from PIL import Image
-
 from revid.engines.registry import register
+
+try:
+    import numpy as np
+    from PIL import Image
+except ImportError:
+    np = None
+    Image = None
 
 _MODEL_URLS = {
     "realesrgan-x4plus": "https://github.com/xinntao/Real-ESRGAN/releases/download/v0.1.0/RealESRGAN_x4plus.pth",
