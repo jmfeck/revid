@@ -73,9 +73,9 @@ class TestRegistry:
 
 class TestAIStepIntegration:
     def test_ai_upscale_adds_step(self, sample_video):
-        import revid as vr
+        import revid as rv
 
-        video = vr.read(sample_video)
+        video = rv.read(sample_video)
         result = video.upscale(factor=4, engine="realesrgan")
         assert len(result._ai_steps) == 1
         assert result._ai_steps[0]["type"] == "upscale"
@@ -83,33 +83,33 @@ class TestAIStepIntegration:
         assert result._ai_steps[0]["factor"] == 4
 
     def test_ai_denoise_adds_step(self, sample_video):
-        import revid as vr
+        import revid as rv
 
-        video = vr.read(sample_video)
+        video = rv.read(sample_video)
         result = video.denoise(engine="nafnet")
         assert len(result._ai_steps) == 1
         assert result._ai_steps[0]["engine"] == "nafnet"
 
     def test_ai_face_restore_adds_step(self, sample_video):
-        import revid as vr
+        import revid as rv
 
-        video = vr.read(sample_video)
+        video = rv.read(sample_video)
         result = video.face_restore(engine="gfpgan")
         assert len(result._ai_steps) == 1
         assert result._ai_steps[0]["type"] == "face_restore"
 
     def test_ai_colorize_adds_step(self, sample_video):
-        import revid as vr
+        import revid as rv
 
-        video = vr.read(sample_video)
+        video = rv.read(sample_video)
         result = video.colorize(engine="deoldify")
         assert len(result._ai_steps) == 1
         assert result._ai_steps[0]["type"] == "colorize"
 
     def test_mixed_ffmpeg_and_ai(self, sample_video):
-        import revid as vr
+        import revid as rv
 
-        video = vr.read(sample_video)
+        video = rv.read(sample_video)
         result = (
             video.deinterlace()
             .denoise(strength=0.5)
@@ -120,17 +120,17 @@ class TestAIStepIntegration:
         assert len(result._ai_steps) == 2
 
     def test_ai_audio_adds_step(self, sample_video):
-        import revid as vr
+        import revid as rv
 
-        video = vr.read(sample_video)
+        video = rv.read(sample_video)
         result = video.audio_denoise(engine="demucs")
         assert len(result._ai_steps) == 1
         assert result._ai_steps[0]["type"] == "audio_denoise"
 
     def test_post_ai_resize(self, sample_video):
-        import revid as vr
+        import revid as rv
 
-        video = vr.read(sample_video)
+        video = rv.read(sample_video)
         result = video.upscale(factor=2, engine="realesrgan").resize(320, 240)
         assert len(result._post_ai_filters) == 1
         assert "scale=320:240" in result._post_ai_filters[0]

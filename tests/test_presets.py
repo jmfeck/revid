@@ -63,9 +63,9 @@ class TestPresets:
         assert len(PRESETS) == 10
 
     def test_ffmpeg_presets_produce_filters(self, sample_video):
-        import revid as vr
+        import revid as rv
 
-        video = vr.read(sample_video)
+        video = rv.read(sample_video)
         ffmpeg_presets = ["vhs_standard", "vhs_quality", "dvd_cleanup", "camcorder", "film_8mm"]
 
         for name in ffmpeg_presets:
@@ -73,9 +73,9 @@ class TestPresets:
             assert len(result._video_filters) > 0, f"Preset '{name}' produced no video filters"
 
     def test_ai_presets_produce_ai_steps(self, sample_video):
-        import revid as vr
+        import revid as rv
 
-        video = vr.read(sample_video)
+        video = rv.read(sample_video)
         ai_presets = ["vhs_ai", "vhs_ai_full", "camcorder_ai", "film_8mm_ai", "bw_restore"]
 
         for name in ai_presets:
@@ -83,9 +83,9 @@ class TestPresets:
             assert len(result._ai_steps) > 0, f"Preset '{name}' produced no AI steps"
 
     def test_ffmpeg_preset_renders(self, sample_video):
-        import revid as vr
+        import revid as rv
 
-        video = vr.read(sample_video)
+        video = rv.read(sample_video)
         with tempfile.NamedTemporaryFile(suffix=".mp4", delete=False) as f:
             out = f.name
         try:
@@ -96,15 +96,15 @@ class TestPresets:
             os.unlink(out)
 
     def test_invalid_preset(self, sample_video):
-        import revid as vr
+        import revid as rv
 
-        video = vr.read(sample_video)
+        video = rv.read(sample_video)
         with pytest.raises(ValueError):
             video.preset("nonexistent")
 
     def test_preset_immutability(self, sample_video):
-        import revid as vr
+        import revid as rv
 
-        video = vr.read(sample_video)
+        video = rv.read(sample_video)
         _ = video.preset("vhs_standard")
         assert len(video._video_filters) == 0

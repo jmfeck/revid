@@ -23,12 +23,14 @@ pip install revid[all]  # everything
 
 Requires [FFmpeg](https://ffmpeg.org/) installed and available in your system PATH.
 
+> **Note on AI features:** The `revid[ai]` extras install PyTorch and several AI models (~2GB+). AI engines process video frame-by-frame and are computationally heavy — a dedicated NVIDIA GPU with CUDA support is strongly recommended. FFmpeg-only features run on any machine with no extra dependencies. AI engines were tested on an NVIDIA RTX 5070 Ti (16GB VRAM) with PyTorch CUDA 12.8.
+
 ## Usage
 
 ```python
-import revid as vr
+import revid as rv
 
-video = vr.read("family_tape_1994.mp4")
+video = rv.read("family_tape_1994.mp4")
 
 # Chain restoration steps and export
 video.deinterlace() \
@@ -196,8 +198,8 @@ video.colorize(engine="deoldify")                  # AI only
 
 | Feature | Description |
 |---------|-------------|
-| `vr.read()` | Read any video format |
-| `vr.read_mp4()`, `vr.read_avi()`, ... | Format-specific readers |
+| `rv.read()` | Read any video format |
+| `rv.read_mp4()`, `rv.read_avi()`, ... | Format-specific readers |
 | `.info()` | Video metadata (codec, resolution, fps, audio) |
 | `.preview()` | Extract single frame |
 | `.extract_audio()` | Extract audio track |
