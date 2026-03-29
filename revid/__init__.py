@@ -2,7 +2,7 @@
 
 """revid — Simple video restoration for Python."""
 
-__version__ = "0.1.1"
+__version__ = "0.1.2"
 
 # ---------------------------------------------------------------------------
 # Lazy-loading API

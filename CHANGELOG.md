@@ -5,7 +5,27 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [0.1.0] - 2025-08-04
+## [0.1.2] - 2026-03-29
+
+### Changed
+
+- Renamed recommended import alias from `vr` to `rv` (`import revid as rv`)
+- Added AI hardware requirements note to README
+
+### Fixed
+
+- Guarded numpy/PIL imports in engine modules for environments without AI deps
+- Fixed `_try_import` to catch `AttributeError` in engine registry
+- Fixed setuptools license classifier conflict
+- Fixed ruff formatting across all source files
+
+## [0.1.1] - 2026-03-29
+
+### Fixed
+
+- Fixed PyPI publish pipeline (trusted publisher)
+
+## [0.1.0] - 2026-03-29
 
 ### Added
 
@@ -23,6 +43,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Preview frame extraction
 - Video metadata probing (info, duration, size, fps)
 - Multiple output formats (mp4, avi, mov, mkv, webm, flv, ts, mpeg)
-- Generic `vr.read()` and format-specific readers (`vr.read_mp4()`, etc.)
+- Generic `rv.read()` and format-specific readers (`rv.read_mp4()`, etc.)
 - Concat, extract audio, mute utilities
 - Histogram, waveform, and vectorscope analysis
