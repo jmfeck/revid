@@ -14,10 +14,7 @@ def face_restore_gfpgan(step: dict, input_dir: str, output_dir: str) -> None:
     try:
         from gfpgan import GFPGANer
     except ImportError:
-        raise ImportError(
-            "GFPGAN not found. Install with:\n"
-            "  pip install gfpgan facexlib"
-        )
+        raise ImportError("GFPGAN not found. Install with:\n  pip install gfpgan facexlib")
 
     import numpy as np
     from PIL import Image
@@ -72,8 +69,12 @@ def face_restore_codeformer(step: dict, input_dir: str, output_dir: str) -> None
     )
 
     from codeformer.basicsr.archs.codeformer_arch import CodeFormer
+
     model = CodeFormer(
-        dim_embd=512, codebook_size=1024, n_head=8, n_layers=9,
+        dim_embd=512,
+        codebook_size=1024,
+        n_head=8,
+        n_layers=9,
         connect_list=["32", "64", "128", "256"],
     ).to(device)
     checkpoint = torch.load(model_path, map_location=device)["params_ema"]
@@ -81,8 +82,12 @@ def face_restore_codeformer(step: dict, input_dir: str, output_dir: str) -> None
     model.eval()
 
     face_helper = FaceRestoreHelper(
-        upscale, face_size=512, crop_ratio=(1, 1),
-        det_model="retinaface_resnet50", save_ext="png", device=device,
+        upscale,
+        face_size=512,
+        crop_ratio=(1, 1),
+        det_model="retinaface_resnet50",
+        save_ext="png",
+        device=device,
     )
 
     frames = sorted(glob.glob(os.path.join(input_dir, "*.png")))
@@ -139,14 +144,18 @@ def face_restore_restoreformer(step: dict, input_dir: str, output_dir: str) -> N
         progress=True,
     )
 
-
     FaceRestoreHelper(
-        upscale, face_size=512, crop_ratio=(1, 1),
-        det_model="retinaface_resnet50", save_ext="png", device=device,
+        upscale,
+        face_size=512,
+        crop_ratio=(1, 1),
+        det_model="retinaface_resnet50",
+        save_ext="png",
+        device=device,
     )
 
     # Load RestoreFormer via GFPGANer wrapper (compatible interface)
     from gfpgan import GFPGANer
+
     restorer = GFPGANer(
         model_path=model_path,
         upscale=upscale,

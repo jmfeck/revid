@@ -16,11 +16,22 @@ def sample_video():
         path = f.name
 
     cmd = [
-        "ffmpeg", "-y",
-        "-f", "lavfi", "-i", "testsrc=duration=2:size=320x240:rate=30",
-        "-f", "lavfi", "-i", "sine=frequency=440:duration=2",
-        "-c:v", "libx264", "-c:a", "aac",
-        "-shortest", path,
+        "ffmpeg",
+        "-y",
+        "-f",
+        "lavfi",
+        "-i",
+        "testsrc=duration=2:size=320x240:rate=30",
+        "-f",
+        "lavfi",
+        "-i",
+        "sine=frequency=440:duration=2",
+        "-c:v",
+        "libx264",
+        "-c:a",
+        "aac",
+        "-shortest",
+        path,
     ]
     subprocess.run(cmd, capture_output=True, check=True)
     yield path
@@ -30,22 +41,26 @@ def sample_video():
 class TestVideoFile:
     def test_read(self, sample_video):
         import revid as vr
+
         video = vr.read(sample_video)
         assert video is not None
         assert video.path == os.path.abspath(sample_video)
 
     def test_read_format_specific(self, sample_video):
         import revid as vr
+
         video = vr.read_mp4(sample_video)
         assert video is not None
 
     def test_file_not_found(self):
         import revid as vr
+
         with pytest.raises(FileNotFoundError):
             vr.read("nonexistent_file.mp4")
 
     def test_repr(self, sample_video):
         import revid as vr
+
         video = vr.read(sample_video)
         r = repr(video)
         assert "VideoFile" in r
@@ -54,11 +69,13 @@ class TestVideoFile:
 
     def test_context_manager(self, sample_video):
         import revid as vr
+
         with vr.read(sample_video) as video:
             assert video is not None
 
     def test_properties(self, sample_video):
         import revid as vr
+
         video = vr.read(sample_video)
         assert video.duration is not None
         assert video.duration > 0
@@ -69,6 +86,7 @@ class TestVideoFile:
 
     def test_info(self, sample_video):
         import revid as vr
+
         video = vr.read(sample_video)
         info = video.info()
         assert "video" in info
@@ -81,6 +99,7 @@ class TestVideoFile:
 class TestFilterChaining:
     def test_immutable_chaining(self, sample_video):
         import revid as vr
+
         video = vr.read(sample_video)
         denoised = video.denoise(strength=0.5)
         assert len(video._video_filters) == 0
@@ -88,18 +107,21 @@ class TestFilterChaining:
 
     def test_multiple_filters(self, sample_video):
         import revid as vr
+
         video = vr.read(sample_video)
         result = video.deinterlace().denoise().sharpen().upscale(factor=2)
         assert len(result._video_filters) == 4
 
     def test_audio_filters(self, sample_video):
         import revid as vr
+
         video = vr.read(sample_video)
         result = video.audio_denoise().hum_remove(frequency=60).hiss_remove()
         assert len(result._audio_filters) == 4  # hiss_remove adds highpass + lowpass
 
     def test_mixed_filters(self, sample_video):
         import revid as vr
+
         video = vr.read(sample_video)
         result = video.denoise().audio_denoise()
         assert len(result._video_filters) == 1
@@ -107,6 +129,7 @@ class TestFilterChaining:
 
     def test_branching(self, sample_video):
         import revid as vr
+
         video = vr.read(sample_video)
         deinterlaced = video.deinterlace()
         branch_a = deinterlaced.denoise(strength=0.3)
@@ -119,6 +142,7 @@ class TestFilterChaining:
 class TestRender:
     def test_render_basic(self, sample_video):
         import revid as vr
+
         video = vr.read(sample_video)
         with tempfile.NamedTemporaryFile(suffix=".mp4", delete=False) as f:
             out = f.name
@@ -131,6 +155,7 @@ class TestRender:
 
     def test_render_chain(self, sample_video):
         import revid as vr
+
         video = vr.read(sample_video)
         with tempfile.NamedTemporaryFile(suffix=".mp4", delete=False) as f:
             out = f.name
@@ -143,6 +168,7 @@ class TestRender:
 
     def test_preview(self, sample_video):
         import revid as vr
+
         video = vr.read(sample_video)
         with tempfile.NamedTemporaryFile(suffix=".png", delete=False) as f:
             out = f.name
@@ -155,6 +181,7 @@ class TestRender:
 
     def test_to_generic(self, sample_video):
         import revid as vr
+
         video = vr.read(sample_video)
         with tempfile.NamedTemporaryFile(suffix=".mkv", delete=False) as f:
             out = f.name
@@ -167,6 +194,7 @@ class TestRender:
 
     def test_extract_audio(self, sample_video):
         import revid as vr
+
         video = vr.read(sample_video)
         with tempfile.NamedTemporaryFile(suffix=".mp3", delete=False) as f:
             out = f.name
@@ -179,12 +207,14 @@ class TestRender:
 
     def test_mute(self, sample_video):
         import revid as vr
+
         video = vr.read(sample_video)
         muted = video.mute()
         assert "-an" in muted._post_args
 
     def test_trim(self, sample_video):
         import revid as vr
+
         video = vr.read(sample_video)
         trimmed = video.trim(start=0.5, end=1.5)
         assert "-ss" in trimmed._pre_args
@@ -196,110 +226,132 @@ class TestFilters:
 
     def test_deinterlace_yadif(self, sample_video):
         import revid as vr
+
         v = vr.read(sample_video).deinterlace()
         assert any("yadif" in f for f in v._video_filters)
 
     def test_deinterlace_bwdif(self, sample_video):
         import revid as vr
+
         v = vr.read(sample_video).deinterlace(algorithm="bwdif")
         assert any("bwdif" in f for f in v._video_filters)
 
     def test_denoise_hqdn3d(self, sample_video):
         import revid as vr
+
         v = vr.read(sample_video).denoise(strength=0.5)
         assert any("hqdn3d" in f for f in v._video_filters)
 
     def test_denoise_nlmeans(self, sample_video):
         import revid as vr
+
         v = vr.read(sample_video).denoise(algorithm="nlmeans")
         assert any("nlmeans" in f for f in v._video_filters)
 
     def test_sharpen_unsharp(self, sample_video):
         import revid as vr
+
         v = vr.read(sample_video).sharpen(amount=1.0)
         assert any("unsharp" in f for f in v._video_filters)
 
     def test_sharpen_cas(self, sample_video):
         import revid as vr
+
         v = vr.read(sample_video).sharpen(algorithm="cas")
         assert any("cas" in f for f in v._video_filters)
 
     def test_upscale(self, sample_video):
         import revid as vr
+
         v = vr.read(sample_video).upscale(factor=2)
         assert any("scale" in f for f in v._video_filters)
 
     def test_upscale_bicubic(self, sample_video):
         import revid as vr
+
         v = vr.read(sample_video).upscale(factor=2, algorithm="bicubic")
         assert any("bicubic" in f for f in v._video_filters)
 
     def test_color_correct(self, sample_video):
         import revid as vr
+
         v = vr.read(sample_video).color_correct(brightness=0.1, saturation=1.2)
         assert any("eq=" in f for f in v._video_filters)
 
     def test_white_balance(self, sample_video):
         import revid as vr
+
         v = vr.read(sample_video).white_balance(temperature=5000)
         assert any("colortemperature" in f for f in v._video_filters)
 
     def test_deflicker(self, sample_video):
         import revid as vr
+
         v = vr.read(sample_video).deflicker()
         assert any("deflicker" in f for f in v._video_filters)
 
     def test_crop(self, sample_video):
         import revid as vr
+
         v = vr.read(sample_video).crop(x=10, y=10, width=300, height=220)
         assert any("crop" in f for f in v._video_filters)
 
     def test_set_fps(self, sample_video):
         import revid as vr
+
         v = vr.read(sample_video).set_fps(24)
         assert any("fps=24" in f for f in v._video_filters)
 
     def test_rotate(self, sample_video):
         import revid as vr
+
         v = vr.read(sample_video).rotate(90)
         assert any("transpose" in f for f in v._video_filters)
 
     def test_grayscale(self, sample_video):
         import revid as vr
+
         v = vr.read(sample_video).grayscale()
         assert any("gray" in f for f in v._video_filters)
 
     def test_fade_in(self, sample_video):
         import revid as vr
+
         v = vr.read(sample_video).fade_in(2.0)
         assert any("fade" in f for f in v._video_filters)
 
     def test_deblock(self, sample_video):
         import revid as vr
+
         v = vr.read(sample_video).deblock()
         assert any("deblock" in f for f in v._video_filters)
 
     def test_hum_remove(self, sample_video):
         import revid as vr
+
         v = vr.read(sample_video).hum_remove(frequency=60)
         assert any("bandreject" in f for f in v._audio_filters)
 
     def test_hum_remove_harmonics(self, sample_video):
         import revid as vr
+
         v = vr.read(sample_video).hum_remove(frequency=60, harmonics=5)
         assert len(v._audio_filters) == 5
 
     def test_audio_normalize(self, sample_video):
         import revid as vr
+
         v = vr.read(sample_video).audio_normalize()
         assert any("loudnorm" in f for f in v._audio_filters)
 
     def test_invalid_denoise_algorithm(self, sample_video):
         import revid as vr
+
         with pytest.raises(ValueError):
             vr.read(sample_video).denoise(algorithm="invalid")
 
     def test_invalid_engine(self, sample_video):
         import revid as vr
+
         with pytest.raises(ValueError):
             vr.read(sample_video).upscale(engine="invalid_engine")

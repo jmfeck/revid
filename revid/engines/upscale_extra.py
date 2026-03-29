@@ -28,16 +28,23 @@ def upscale_swinir(step: dict, input_dir: str, output_dir: str) -> None:
 
         model_path = load_file_from_url(
             url="https://github.com/JingyunLiang/SwinIR/releases/download/v0.0/"
-                "003_realSR_BSRGAN_DFOWMFC_s64w8_SwinIR-M_x4_GAN.pth",
+            "003_realSR_BSRGAN_DFOWMFC_s64w8_SwinIR-M_x4_GAN.pth",
             model_dir="weights/SwinIR",
             progress=True,
         )
 
         model = SwinIRModel(
-            upscale=factor, in_chans=3, img_size=64, window_size=8,
-            img_range=1.0, depths=[6, 6, 6, 6, 6, 6],
-            embed_dim=180, num_heads=[6, 6, 6, 6, 6, 6],
-            mlp_ratio=2, upsampler="nearest+conv", resi_connection="1conv",
+            upscale=factor,
+            in_chans=3,
+            img_size=64,
+            window_size=8,
+            img_range=1.0,
+            depths=[6, 6, 6, 6, 6, 6],
+            embed_dim=180,
+            num_heads=[6, 6, 6, 6, 6, 6],
+            mlp_ratio=2,
+            upsampler="nearest+conv",
+            resi_connection="1conv",
         ).to(device)
 
         checkpoint = torch.load(model_path, map_location=device)
@@ -45,10 +52,7 @@ def upscale_swinir(step: dict, input_dir: str, output_dir: str) -> None:
         model.load_state_dict(params)
         model.eval()
     except ImportError:
-        raise ImportError(
-            "SwinIR model not found. Clone from:\n"
-            "  https://github.com/JingyunLiang/SwinIR"
-        )
+        raise ImportError("SwinIR model not found. Clone from:\n  https://github.com/JingyunLiang/SwinIR")
 
     window_size = 8
     frames = sorted(glob.glob(os.path.join(input_dir, "*.png")))
@@ -65,7 +69,7 @@ def upscale_swinir(step: dict, input_dir: str, output_dir: str) -> None:
         with torch.no_grad():
             output = model(tensor)
 
-        output = output[:, :, :h * factor, :w * factor]
+        output = output[:, :, : h * factor, : w * factor]
         out_img = (output[0].permute(1, 2, 0).cpu().numpy() * 255).clip(0, 255).astype(np.uint8)
 
         out_path = os.path.join(output_dir, os.path.basename(frame_path))
@@ -77,12 +81,10 @@ def upscale_espcn(step: dict, input_dir: str, output_dir: str) -> None:
     """Upscale frames using ESPCN (OpenCV DNN — fast, lightweight)."""
     try:
         import cv2
+
         sr = cv2.dnn_superres.DnnSuperResImpl_create()
     except (ImportError, AttributeError):
-        raise ImportError(
-            "ESPCN requires opencv-contrib-python. Install with:\n"
-            "  pip install opencv-contrib-python"
-        )
+        raise ImportError("ESPCN requires opencv-contrib-python. Install with:\n  pip install opencv-contrib-python")
 
     factor = step.get("factor", 4)
 
@@ -93,6 +95,7 @@ def upscale_espcn(step: dict, input_dir: str, output_dir: str) -> None:
 
     if not os.path.isfile(model_path):
         import urllib.request
+
         urllib.request.urlretrieve(model_url, model_path)
 
     sr.readModel(model_path)
@@ -111,12 +114,10 @@ def upscale_edsr(step: dict, input_dir: str, output_dir: str) -> None:
     """Upscale frames using EDSR (OpenCV DNN — higher quality than ESPCN)."""
     try:
         import cv2
+
         sr = cv2.dnn_superres.DnnSuperResImpl_create()
     except (ImportError, AttributeError):
-        raise ImportError(
-            "EDSR requires opencv-contrib-python. Install with:\n"
-            "  pip install opencv-contrib-python"
-        )
+        raise ImportError("EDSR requires opencv-contrib-python. Install with:\n  pip install opencv-contrib-python")
 
     factor = step.get("factor", 4)
 
@@ -127,6 +128,7 @@ def upscale_edsr(step: dict, input_dir: str, output_dir: str) -> None:
 
     if not os.path.isfile(model_path):
         import urllib.request
+
         urllib.request.urlretrieve(model_url, model_path)
 
     sr.readModel(model_path)
@@ -156,8 +158,7 @@ def upscale_basicvsr(step: dict, input_dir: str, output_dir: str) -> None:
         from basicsr.utils.download_util import load_file_from_url
 
         model_path = load_file_from_url(
-            url="https://github.com/ckkelvinchan/BasicVSR_PlusPlus/releases/download/v1.0/"
-                "BasicVSR_plusplus_REDS.pth",
+            url="https://github.com/ckkelvinchan/BasicVSR_PlusPlus/releases/download/v1.0/BasicVSR_plusplus_REDS.pth",
             model_dir="weights/BasicVSR",
             progress=True,
         )
@@ -178,7 +179,7 @@ def upscale_basicvsr(step: dict, input_dir: str, output_dir: str) -> None:
     batch_size = step.get("batch_size", 30)
 
     for start in range(0, len(frames), batch_size):
-        batch_frames = frames[start:start + batch_size]
+        batch_frames = frames[start : start + batch_size]
 
         imgs = []
         for fp in batch_frames:

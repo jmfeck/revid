@@ -14,6 +14,7 @@ from revid.engines.registry import register
 def _setup_torch():
     """Common torch setup."""
     import torch
+
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     return torch, device
 
@@ -51,6 +52,7 @@ def _process_frames(model, input_dir: str, output_dir: str, tile_size: int = 0):
 # Denoise
 # =============================================================================
 
+
 @register("denoise", "nafnet")
 def denoise_nafnet(step: dict, input_dir: str, output_dir: str) -> None:
     """Denoise frames using NAFNet."""
@@ -58,10 +60,7 @@ def denoise_nafnet(step: dict, input_dir: str, output_dir: str) -> None:
         torch, device = _setup_torch()
         from basicsr.archs.nafnet_arch import NAFNet
     except ImportError:
-        raise ImportError(
-            "NAFNet not found. Install with:\n"
-            "  pip install basicsr torch"
-        )
+        raise ImportError("NAFNet not found. Install with:\n  pip install basicsr torch")
 
     from basicsr.utils.download_util import load_file_from_url
 
@@ -72,8 +71,10 @@ def denoise_nafnet(step: dict, input_dir: str, output_dir: str) -> None:
     )
 
     model = NAFNet(
-        img_channel=3, width=64,
-        enc_blk_nums=[2, 2, 4, 8], dec_blk_nums=[2, 2, 2, 2],
+        img_channel=3,
+        width=64,
+        enc_blk_nums=[2, 2, 4, 8],
+        dec_blk_nums=[2, 2, 2, 2],
         middle_blk_num=12,
     ).to(device)
 
@@ -95,13 +96,11 @@ def denoise_scunet(step: dict, input_dir: str, output_dir: str) -> None:
     try:
         from scunet.models.network_scunet import SCUNet as SCUNetModel
     except ImportError:
-        raise ImportError(
-            "SCUNet not found. Clone from:\n"
-            "  https://github.com/cszn/SCUNet"
-        )
+        raise ImportError("SCUNet not found. Clone from:\n  https://github.com/cszn/SCUNet")
 
     model_url = "https://github.com/cszn/SCUNet/releases/download/v1.0/scunet_color_real_psnr.pth"
     from basicsr.utils.download_util import load_file_from_url
+
     model_path = load_file_from_url(url=model_url, model_dir="weights/SCUNet", progress=True)
 
     model = SCUNetModel(in_nc=3, config=[4, 4, 4, 4, 4, 4, 4], dim=64).to(device)
@@ -122,12 +121,10 @@ def denoise_restormer(step: dict, input_dir: str, output_dir: str) -> None:
     try:
         from restormer.basicsr.models.archs.restormer_arch import Restormer
     except ImportError:
-        raise ImportError(
-            "Restormer not found. Clone from:\n"
-            "  https://github.com/swz30/Restormer"
-        )
+        raise ImportError("Restormer not found. Clone from:\n  https://github.com/swz30/Restormer")
 
     from basicsr.utils.download_util import load_file_from_url
+
     model_path = load_file_from_url(
         url="https://github.com/swz30/Restormer/releases/download/v1.0/real_denoising.pth",
         model_dir="weights/Restormer",
@@ -135,10 +132,15 @@ def denoise_restormer(step: dict, input_dir: str, output_dir: str) -> None:
     )
 
     model = Restormer(
-        inp_channels=3, out_channels=3, dim=48,
-        num_blocks=[4, 6, 6, 8], num_refinement_blocks=4,
-        heads=[1, 2, 4, 8], ffn_expansion_factor=2.66,
-        bias=False, LayerNorm_type="BiasFree",
+        inp_channels=3,
+        out_channels=3,
+        dim=48,
+        num_blocks=[4, 6, 6, 8],
+        num_refinement_blocks=4,
+        heads=[1, 2, 4, 8],
+        ffn_expansion_factor=2.66,
+        bias=False,
+        LayerNorm_type="BiasFree",
     ).to(device)
 
     checkpoint = torch.load(model_path, map_location=device)
@@ -152,6 +154,7 @@ def denoise_restormer(step: dict, input_dir: str, output_dir: str) -> None:
 # Deblur
 # =============================================================================
 
+
 @register("deblur", "nafnet")
 def deblur_nafnet(step: dict, input_dir: str, output_dir: str) -> None:
     """Deblur frames using NAFNet (GoPro weights)."""
@@ -159,10 +162,7 @@ def deblur_nafnet(step: dict, input_dir: str, output_dir: str) -> None:
         torch, device = _setup_torch()
         from basicsr.archs.nafnet_arch import NAFNet
     except ImportError:
-        raise ImportError(
-            "NAFNet not found. Install with:\n"
-            "  pip install basicsr torch"
-        )
+        raise ImportError("NAFNet not found. Install with:\n  pip install basicsr torch")
 
     from basicsr.utils.download_util import load_file_from_url
 
@@ -173,8 +173,10 @@ def deblur_nafnet(step: dict, input_dir: str, output_dir: str) -> None:
     )
 
     model = NAFNet(
-        img_channel=3, width=64,
-        enc_blk_nums=[1, 1, 1, 28], dec_blk_nums=[1, 1, 1, 1],
+        img_channel=3,
+        width=64,
+        enc_blk_nums=[1, 1, 1, 28],
+        dec_blk_nums=[1, 1, 1, 1],
         middle_blk_num=1,
     ).to(device)
 
@@ -196,12 +198,10 @@ def deblur_mprnet(step: dict, input_dir: str, output_dir: str) -> None:
     try:
         from mprnet.MPRNet import MPRNet
     except ImportError:
-        raise ImportError(
-            "MPRNet not found. Clone from:\n"
-            "  https://github.com/swz30/MPRNet"
-        )
+        raise ImportError("MPRNet not found. Clone from:\n  https://github.com/swz30/MPRNet")
 
     from basicsr.utils.download_util import load_file_from_url
+
     model_path = load_file_from_url(
         url="https://github.com/swz30/MPRNet/releases/download/v1.0/model_deblurring.pth",
         model_dir="weights/MPRNet",
@@ -227,12 +227,10 @@ def deblur_hinet(step: dict, input_dir: str, output_dir: str) -> None:
     try:
         from hinet.HINet import HINet
     except ImportError:
-        raise ImportError(
-            "HINet not found. Clone from:\n"
-            "  https://github.com/megvii-model/HINet"
-        )
+        raise ImportError("HINet not found. Clone from:\n  https://github.com/megvii-model/HINet")
 
     from basicsr.utils.download_util import load_file_from_url
+
     model_path = load_file_from_url(
         url="https://github.com/megvii-model/HINet/releases/download/v1.0/HINet-GoPro.pth",
         model_dir="weights/HINet",

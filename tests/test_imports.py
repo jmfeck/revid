@@ -5,16 +5,19 @@
 
 def test_version():
     import revid
+
     assert revid.__version__ == "0.1.0"
 
 
 def test_read_function_exists():
     import revid
+
     assert callable(revid.read)
 
 
 def test_videofile_class_exists():
     import revid
+
     assert revid.VideoFile is not None
 
 

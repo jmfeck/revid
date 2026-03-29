@@ -16,11 +16,22 @@ def sample_video():
         path = f.name
 
     cmd = [
-        "ffmpeg", "-y",
-        "-f", "lavfi", "-i", "testsrc=duration=1:size=320x240:rate=30",
-        "-f", "lavfi", "-i", "sine=frequency=440:duration=1",
-        "-c:v", "libx264", "-c:a", "aac",
-        "-shortest", path,
+        "ffmpeg",
+        "-y",
+        "-f",
+        "lavfi",
+        "-i",
+        "testsrc=duration=1:size=320x240:rate=30",
+        "-f",
+        "lavfi",
+        "-i",
+        "sine=frequency=440:duration=1",
+        "-c:v",
+        "libx264",
+        "-c:a",
+        "aac",
+        "-shortest",
+        path,
     ]
     subprocess.run(cmd, capture_output=True, check=True)
     yield path
@@ -30,12 +41,14 @@ def sample_video():
 class TestRegistry:
     def test_registry_loads(self):
         from revid.engines.registry import get_registry
+
         registry = get_registry()
         assert isinstance(registry, dict)
         assert len(registry) > 0
 
     def test_expected_engines_registered(self):
         from revid.engines.registry import get_registry
+
         registry = get_registry()
 
         expected = [
@@ -62,11 +75,13 @@ class TestRegistry:
 
     def test_engine_count(self):
         from revid.engines.registry import get_registry
+
         registry = get_registry()
         assert len(registry) >= 38
 
     def test_all_handlers_are_callable(self):
         from revid.engines.registry import get_registry
+
         registry = get_registry()
         for key, handler in registry.items():
             assert callable(handler), f"Handler for '{key}' is not callable"
@@ -75,6 +90,7 @@ class TestRegistry:
 class TestAIStepIntegration:
     def test_ai_upscale_adds_step(self, sample_video):
         import revid as vr
+
         video = vr.read(sample_video)
         result = video.upscale(factor=4, engine="realesrgan")
         assert len(result._ai_steps) == 1
@@ -84,6 +100,7 @@ class TestAIStepIntegration:
 
     def test_ai_denoise_adds_step(self, sample_video):
         import revid as vr
+
         video = vr.read(sample_video)
         result = video.denoise(engine="nafnet")
         assert len(result._ai_steps) == 1
@@ -91,6 +108,7 @@ class TestAIStepIntegration:
 
     def test_ai_face_restore_adds_step(self, sample_video):
         import revid as vr
+
         video = vr.read(sample_video)
         result = video.face_restore(engine="gfpgan")
         assert len(result._ai_steps) == 1
@@ -98,6 +116,7 @@ class TestAIStepIntegration:
 
     def test_ai_colorize_adds_step(self, sample_video):
         import revid as vr
+
         video = vr.read(sample_video)
         result = video.colorize(engine="deoldify")
         assert len(result._ai_steps) == 1
@@ -105,9 +124,10 @@ class TestAIStepIntegration:
 
     def test_mixed_ffmpeg_and_ai(self, sample_video):
         import revid as vr
+
         video = vr.read(sample_video)
-        result = (video
-            .deinterlace()
+        result = (
+            video.deinterlace()
             .denoise(strength=0.5)
             .upscale(factor=4, engine="realesrgan")
             .face_restore(engine="gfpgan")
@@ -117,6 +137,7 @@ class TestAIStepIntegration:
 
     def test_ai_audio_adds_step(self, sample_video):
         import revid as vr
+
         video = vr.read(sample_video)
         result = video.audio_denoise(engine="demucs")
         assert len(result._ai_steps) == 1
@@ -124,6 +145,7 @@ class TestAIStepIntegration:
 
     def test_post_ai_resize(self, sample_video):
         import revid as vr
+
         video = vr.read(sample_video)
         result = video.upscale(factor=2, engine="realesrgan").resize(320, 240)
         assert len(result._post_ai_filters) == 1

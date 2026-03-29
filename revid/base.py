@@ -55,8 +55,10 @@ class BaseVideo:
 
         cmd = [
             "ffprobe",
-            "-v", "quiet",
-            "-print_format", "json",
+            "-v",
+            "quiet",
+            "-print_format",
+            "json",
             "-show_format",
             "-show_streams",
             self._path,
@@ -301,14 +303,14 @@ class BaseVideo:
 
                 # Find the processed audio file
                 import glob as _glob
+
                 audio_files = _glob.glob(os.path.join(audio_dir, "audio.*"))
                 if audio_files:
                     audio_path = audio_files[0]
 
             # Step 5: Re-encode
             # Get FPS from original file
-            probe_cmd = ["ffprobe", "-v", "quiet", "-print_format", "json",
-                         "-show_streams", self._path]
+            probe_cmd = ["ffprobe", "-v", "quiet", "-print_format", "json", "-show_streams", self._path]
             probe_result = subprocess.run(probe_cmd, capture_output=True, text=True, check=True)
             probe_data = json.loads(probe_result.stdout)
             fps = "30"
@@ -319,8 +321,7 @@ class BaseVideo:
 
             if frames_dir:
                 # Video was processed — re-encode from frames
-                encode_cmd = ["ffmpeg", "-y", "-framerate", fps,
-                              "-i", f"{frames_dir}/%08d.png"]
+                encode_cmd = ["ffmpeg", "-y", "-framerate", fps, "-i", f"{frames_dir}/%08d.png"]
 
                 if audio_path:
                     encode_cmd.extend(["-i", audio_path])
@@ -382,6 +383,7 @@ class BaseVideo:
         registry = {}
         try:
             from revid.engines import get_registry
+
             registry.update(get_registry())
         except ImportError:
             pass
@@ -394,7 +396,9 @@ class BaseVideo:
             transforms_file = os.path.join(tmpdir, "transforms.trf")
 
             # Pass 1: detect motion — apply existing video filters first, then detect
-            detect_filter = f"vidstabdetect=shakiness={params['shakiness']}:accuracy={params['accuracy']}:result={transforms_file}"
+            detect_filter = (
+                f"vidstabdetect=shakiness={params['shakiness']}:accuracy={params['accuracy']}:result={transforms_file}"
+            )
             pass1_filters = list(self._video_filters) + [detect_filter]
 
             cmd1 = ["ffmpeg", "-y"]

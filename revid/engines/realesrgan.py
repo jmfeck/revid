@@ -35,17 +35,18 @@ def upscale_realesrgan(step: dict, input_dir: str, output_dir: str) -> None:
         from basicsr.archs.rrdbnet_arch import RRDBNet
         from realesrgan import RealESRGANer
     except ImportError:
-        raise ImportError(
-            "Real-ESRGAN not found. Install with:\n"
-            "  pip install realesrgan basicsr torch"
-        )
+        raise ImportError("Real-ESRGAN not found. Install with:\n  pip install realesrgan basicsr torch")
 
     config = _MODEL_CONFIGS.get(model_name, _MODEL_CONFIGS["realesrgan-x4plus"])
     model_url = _MODEL_URLS.get(model_name, _MODEL_URLS["realesrgan-x4plus"])
 
     network = RRDBNet(
-        num_in_ch=3, num_out_ch=3, num_feat=64,
-        num_block=config["num_block"], num_grow_ch=32, scale=config["scale"],
+        num_in_ch=3,
+        num_out_ch=3,
+        num_feat=64,
+        num_block=config["num_block"],
+        num_grow_ch=32,
+        scale=config["scale"],
     )
 
     device = "cuda" if torch.cuda.is_available() else "cpu"

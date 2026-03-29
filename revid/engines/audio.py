@@ -31,6 +31,7 @@ def _get_audio_path(input_dir: str) -> str:
 # Audio denoise
 # =============================================================================
 
+
 @register("audio_denoise", "demucs")
 def audio_denoise_demucs(step: dict, input_dir: str, output_dir: str) -> None:
     """Denoise audio using Demucs (Meta) — separate sources, keep speech."""
@@ -40,10 +41,7 @@ def audio_denoise_demucs(step: dict, input_dir: str, output_dir: str) -> None:
         from demucs.apply import apply_model
         from demucs.pretrained import get_model
     except ImportError:
-        raise ImportError(
-            "Demucs not found. Install with:\n"
-            "  pip install demucs"
-        )
+        raise ImportError("Demucs not found. Install with:\n  pip install demucs")
 
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     model_name = step.get("model", "htdemucs")
@@ -75,10 +73,7 @@ def audio_denoise_silero(step: dict, input_dir: str, output_dir: str) -> None:
         import torch
         import torchaudio
     except ImportError:
-        raise ImportError(
-            "Silero requires PyTorch. Install with:\n"
-            "  pip install torch torchaudio"
-        )
+        raise ImportError("Silero requires PyTorch. Install with:\n  pip install torch torchaudio")
 
     model, utils = torch.hub.load(
         repo_or_dir="snakers4/silero-vad",
@@ -128,10 +123,7 @@ def audio_denoise_rnnoise(step: dict, input_dir: str, output_dir: str) -> None:
     try:
         import rnnoise
     except ImportError:
-        raise ImportError(
-            "RNNoise not found. Install with:\n"
-            "  pip install rnnoise-python"
-        )
+        raise ImportError("RNNoise not found. Install with:\n  pip install rnnoise-python")
 
     import wave
 
@@ -142,11 +134,22 @@ def audio_denoise_rnnoise(step: dict, input_dir: str, output_dir: str) -> None:
     # RNNoise works on 48kHz mono 16-bit PCM
     # Convert input to WAV 48kHz mono first
     temp_wav = os.path.join(output_dir, "temp_48k.wav")
-    subprocess.run([
-        "ffmpeg", "-y", "-i", audio_path,
-        "-ar", "48000", "-ac", "1", "-sample_fmt", "s16",
-        temp_wav,
-    ], check=True)
+    subprocess.run(
+        [
+            "ffmpeg",
+            "-y",
+            "-i",
+            audio_path,
+            "-ar",
+            "48000",
+            "-ac",
+            "1",
+            "-sample_fmt",
+            "s16",
+            temp_wav,
+        ],
+        check=True,
+    )
 
     # Process with RNNoise
     denoiser = rnnoise.RNNoise()
@@ -161,9 +164,9 @@ def audio_denoise_rnnoise(step: dict, input_dir: str, output_dir: str) -> None:
     output_data = np.zeros_like(audio_data)
 
     for i in range(0, len(audio_data) - frame_size, frame_size):
-        frame = audio_data[i:i + frame_size].astype(np.float32)
+        frame = audio_data[i : i + frame_size].astype(np.float32)
         denoised = denoiser.process_frame(frame)
-        output_data[i:i + frame_size] = np.array(denoised, dtype=np.int16)
+        output_data[i : i + frame_size] = np.array(denoised, dtype=np.int16)
 
     out_path = os.path.join(output_dir, "audio.wav")
     with wave.open(out_path, "wb") as wf:
@@ -179,6 +182,7 @@ def audio_denoise_rnnoise(step: dict, input_dir: str, output_dir: str) -> None:
 # Audio source separation
 # =============================================================================
 
+
 @register("audio_separate", "demucs")
 def audio_separate_demucs(step: dict, input_dir: str, output_dir: str) -> None:
     """Separate audio sources using Demucs (vocals, drums, bass, other)."""
@@ -188,10 +192,7 @@ def audio_separate_demucs(step: dict, input_dir: str, output_dir: str) -> None:
         from demucs.apply import apply_model
         from demucs.pretrained import get_model
     except ImportError:
-        raise ImportError(
-            "Demucs not found. Install with:\n"
-            "  pip install demucs"
-        )
+        raise ImportError("Demucs not found. Install with:\n  pip install demucs")
 
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     model_name = step.get("model", "htdemucs")
@@ -220,10 +221,7 @@ def audio_separate_open_unmix(step: dict, input_dir: str, output_dir: str) -> No
         import torchaudio
         from openunmix import predict
     except ImportError:
-        raise ImportError(
-            "Open-Unmix not found. Install with:\n"
-            "  pip install openunmix"
-        )
+        raise ImportError("Open-Unmix not found. Install with:\n  pip install openunmix")
 
     stem = step.get("stem", "vocals")
     model_name = step.get("model", "umxhq")
@@ -244,6 +242,7 @@ def audio_separate_open_unmix(step: dict, input_dir: str, output_dir: str) -> No
 # =============================================================================
 # Audio super resolution
 # =============================================================================
+
 
 @register("audio_upscale", "audiosr")
 def audio_upscale_audiosr(step: dict, input_dir: str, output_dir: str) -> None:
@@ -272,6 +271,7 @@ def audio_upscale_audiosr(step: dict, input_dir: str, output_dir: str) -> None:
     )
 
     import torchaudio
+
     out_path = os.path.join(output_dir, "audio.wav")
     torchaudio.save(out_path, torch.tensor(waveform).float(), 48000)
 
@@ -300,10 +300,7 @@ def audio_upscale_aero(step: dict, input_dir: str, output_dir: str) -> None:
         model.load_state_dict(torch.load(model_path, map_location=device))
         model.eval()
     except ImportError:
-        raise ImportError(
-            "AERO not found. Clone from:\n"
-            "  https://github.com/facebookresearch/aero"
-        )
+        raise ImportError("AERO not found. Clone from:\n  https://github.com/facebookresearch/aero")
 
     audio_path = _get_audio_path(input_dir)
     waveform, sample_rate = torchaudio.load(audio_path)

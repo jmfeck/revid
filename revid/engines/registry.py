@@ -13,9 +13,11 @@ _REGISTRY: dict = {}
 
 def register(step_type: str, engine: str):
     """Decorator to register an AI engine handler."""
+
     def decorator(fn):
         _REGISTRY[f"{step_type}:{engine}"] = fn
         return fn
+
     return decorator
 
 

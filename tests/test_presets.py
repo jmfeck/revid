@@ -16,11 +16,22 @@ def sample_video():
         path = f.name
 
     cmd = [
-        "ffmpeg", "-y",
-        "-f", "lavfi", "-i", "testsrc=duration=1:size=320x240:rate=30",
-        "-f", "lavfi", "-i", "sine=frequency=440:duration=1",
-        "-c:v", "libx264", "-c:a", "aac",
-        "-shortest", path,
+        "ffmpeg",
+        "-y",
+        "-f",
+        "lavfi",
+        "-i",
+        "testsrc=duration=1:size=320x240:rate=30",
+        "-f",
+        "lavfi",
+        "-i",
+        "sine=frequency=440:duration=1",
+        "-c:v",
+        "libx264",
+        "-c:a",
+        "aac",
+        "-shortest",
+        path,
     ]
     subprocess.run(cmd, capture_output=True, check=True)
     yield path
@@ -32,14 +43,23 @@ class TestPresets:
         from revid.presets import PRESETS
 
         expected = [
-            "vhs_standard", "vhs_quality", "dvd_cleanup", "camcorder", "film_8mm",
-            "vhs_ai", "vhs_ai_full", "camcorder_ai", "film_8mm_ai", "bw_restore",
+            "vhs_standard",
+            "vhs_quality",
+            "dvd_cleanup",
+            "camcorder",
+            "film_8mm",
+            "vhs_ai",
+            "vhs_ai_full",
+            "camcorder_ai",
+            "film_8mm_ai",
+            "bw_restore",
         ]
         for name in expected:
             assert name in PRESETS, f"Preset '{name}' not found"
 
     def test_preset_count(self):
         from revid.presets import PRESETS
+
         assert len(PRESETS) == 10
 
     def test_ffmpeg_presets_produce_filters(self, sample_video):

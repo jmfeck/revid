@@ -44,10 +44,7 @@ def scratch_remove_rtn(step: dict, input_dir: str, output_dir: str) -> None:
         restorer.load_state_dict(torch.load(restore_path, map_location=device))
         restorer.eval()
     except ImportError:
-        raise ImportError(
-            "RTN not found. Clone from:\n"
-            "  https://github.com/raywzy/Bringing-Old-Films-Back-to-Life"
-        )
+        raise ImportError("RTN not found. Clone from:\n  https://github.com/raywzy/Bringing-Old-Films-Back-to-Life")
 
     frames = sorted(glob.glob(os.path.join(input_dir, "*.png")))
     for frame_path in frames:
@@ -81,8 +78,7 @@ def scratch_remove_old_photo(step: dict, input_dir: str, output_dir: str) -> Non
         from old_photos.run import process_image
     except ImportError:
         raise ImportError(
-            "Old Photo Restore not found. Clone from:\n"
-            "  https://github.com/microsoft/Bringing-Old-Photos-Back-to-Life"
+            "Old Photo Restore not found. Clone from:\n  https://github.com/microsoft/Bringing-Old-Photos-Back-to-Life"
         )
 
     frames = sorted(glob.glob(os.path.join(input_dir, "*.png")))

@@ -21,6 +21,7 @@ def _load_mask(mask_path: str, h: int, w: int) -> np.ndarray:
 # Per-frame inpainting
 # =============================================================================
 
+
 @register("inpaint", "lama")
 def inpaint_lama(step: dict, input_dir: str, output_dir: str) -> None:
     """Inpaint damaged regions using LaMa (Large Mask Inpainting)."""
@@ -37,6 +38,7 @@ def inpaint_lama(step: dict, input_dir: str, output_dir: str) -> None:
 
     try:
         from simple_lama_inpainting.inpaint import SimpleLama
+
         model = SimpleLama()
     except ImportError:
         try:
@@ -71,9 +73,7 @@ def inpaint_lama(step: dict, input_dir: str, output_dir: str) -> None:
             mask_t = torch.from_numpy(np.array(mask)).float().unsqueeze(0).unsqueeze(0).to(device) / 255.0
             with torch.no_grad():
                 result_t = model(img_t, mask_t)
-            result = Image.fromarray(
-                (result_t[0].permute(1, 2, 0).cpu().numpy() * 255).clip(0, 255).astype(np.uint8)
-            )
+            result = Image.fromarray((result_t[0].permute(1, 2, 0).cpu().numpy() * 255).clip(0, 255).astype(np.uint8))
 
         out_path = os.path.join(output_dir, os.path.basename(frame_path))
         result.save(out_path)
@@ -104,14 +104,12 @@ def inpaint_mat(step: dict, input_dir: str, output_dir: str) -> None:
         )
 
         import pickle
+
         with open(model_path, "rb") as f:
             model = pickle.load(f)["G_ema"].to(device)
         model.eval()
     except ImportError:
-        raise ImportError(
-            "MAT not found. Clone from:\n"
-            "  https://github.com/fenglinglwb/MAT"
-        )
+        raise ImportError("MAT not found. Clone from:\n  https://github.com/fenglinglwb/MAT")
 
     frames = sorted(glob.glob(os.path.join(input_dir, "*.png")))
     for frame_path in frames:
@@ -133,6 +131,7 @@ def inpaint_mat(step: dict, input_dir: str, output_dir: str) -> None:
 # =============================================================================
 # Video-aware object removal
 # =============================================================================
+
 
 @register("object_remove", "propainter")
 def object_remove_propainter(step: dict, input_dir: str, output_dir: str) -> None:
@@ -166,10 +165,7 @@ def object_remove_propainter(step: dict, input_dir: str, output_dir: str) -> Non
         model = ProPainter(model_path=model_path, flow_model_path=flow_model_path).to(device)
         model.eval()
     except ImportError:
-        raise ImportError(
-            "ProPainter not found. Clone from:\n"
-            "  https://github.com/sczhou/ProPainter"
-        )
+        raise ImportError("ProPainter not found. Clone from:\n  https://github.com/sczhou/ProPainter")
 
     # Load all frames and mask
     frames = sorted(glob.glob(os.path.join(input_dir, "*.png")))
@@ -221,10 +217,7 @@ def object_remove_e2fgvi(step: dict, input_dir: str, output_dir: str) -> None:
         model.load_state_dict(checkpoint.get("generator", checkpoint))
         model.eval()
     except ImportError:
-        raise ImportError(
-            "E2FGVI not found. Clone from:\n"
-            "  https://github.com/MCG-NKU/E2FGVI"
-        )
+        raise ImportError("E2FGVI not found. Clone from:\n  https://github.com/MCG-NKU/E2FGVI")
 
     frames = sorted(glob.glob(os.path.join(input_dir, "*.png")))
     imgs = []

@@ -13,10 +13,7 @@ def scene_detect_pyscenedetect(step: dict, input_dir: str, output_dir: str) -> l
     try:
         from scenedetect import ContentDetector, detect
     except ImportError:
-        raise ImportError(
-            "PySceneDetect not found. Install with:\n"
-            "  pip install scenedetect[opencv]"
-        )
+        raise ImportError("PySceneDetect not found. Install with:\n  pip install scenedetect[opencv]")
 
     video_path = step.get("video_path")
     if not video_path:
@@ -52,10 +49,7 @@ def scene_detect_transnetv2(step: dict, input_dir: str, output_dir: str) -> list
         import torch
         from transnetv2 import TransNetV2
     except ImportError:
-        raise ImportError(
-            "TransNetV2 not found. Install with:\n"
-            "  pip install transnetv2"
-        )
+        raise ImportError("TransNetV2 not found. Install with:\n  pip install transnetv2")
 
     import glob
 

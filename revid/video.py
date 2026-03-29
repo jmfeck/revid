@@ -61,8 +61,9 @@ class VideoFile(BaseVideo):
 
     # --- Denoise -------------------------------------------------------------
 
-    def denoise(self, strength: float = 0.5, engine: str = "ffmpeg",
-                algorithm: str = "hqdn3d", **kwargs) -> "VideoFile":
+    def denoise(
+        self, strength: float = 0.5, engine: str = "ffmpeg", algorithm: str = "hqdn3d", **kwargs
+    ) -> "VideoFile":
         """Reduce noise.
 
         Args:
@@ -93,8 +94,7 @@ class VideoFile(BaseVideo):
 
     # --- Sharpen -------------------------------------------------------------
 
-    def sharpen(self, amount: float = 1.0, engine: str = "ffmpeg",
-                algorithm: str = "unsharp") -> "VideoFile":
+    def sharpen(self, amount: float = 1.0, engine: str = "ffmpeg", algorithm: str = "unsharp") -> "VideoFile":
         """Sharpen the video.
 
         Args:
@@ -113,8 +113,7 @@ class VideoFile(BaseVideo):
 
     # --- Upscale -------------------------------------------------------------
 
-    def upscale(self, factor: int = 2, engine: str = "ffmpeg",
-                algorithm: str = "lanczos", **kwargs) -> "VideoFile":
+    def upscale(self, factor: int = 2, engine: str = "ffmpeg", algorithm: str = "lanczos", **kwargs) -> "VideoFile":
         """Upscale video resolution.
 
         Args:
@@ -128,12 +127,14 @@ class VideoFile(BaseVideo):
             return self._add_video_filter(f"scale=iw*{factor}:ih*{factor}:flags={flags}")
 
         if engine in _UPSCALE_ENGINES:
-            return self._add_ai_step({
-                "type": "upscale",
-                "engine": engine,
-                "factor": factor,
-                **kwargs,
-            })
+            return self._add_ai_step(
+                {
+                    "type": "upscale",
+                    "engine": engine,
+                    "factor": factor,
+                    **kwargs,
+                }
+            )
 
         raise ValueError(f"Unknown engine: {engine}. Available: ffmpeg, {', '.join(_UPSCALE_ENGINES)}")
 
@@ -185,9 +186,12 @@ class VideoFile(BaseVideo):
 
     def color_levels(
         self,
-        rimin: float = 0, rimax: float = 1,
-        gimin: float = 0, gimax: float = 1,
-        bimin: float = 0, bimax: float = 1,
+        rimin: float = 0,
+        rimax: float = 1,
+        gimin: float = 0,
+        gimax: float = 1,
+        bimin: float = 0,
+        bimax: float = 1,
     ) -> "VideoFile":
         """Adjust per-channel color levels."""
         return self._add_video_filter(
@@ -220,9 +224,15 @@ class VideoFile(BaseVideo):
 
     # --- Stabilize -----------------------------------------------------------
 
-    def stabilize(self, engine: str = "ffmpeg", algorithm: str = "vidstab",
-                  shakiness: int = 5, accuracy: int = 15, smoothing: int = 10,
-                  **kwargs) -> "VideoFile":
+    def stabilize(
+        self,
+        engine: str = "ffmpeg",
+        algorithm: str = "vidstab",
+        shakiness: int = 5,
+        accuracy: int = 15,
+        smoothing: int = 10,
+        **kwargs,
+    ) -> "VideoFile":
         """Stabilize shaky video.
 
         Args:
@@ -382,8 +392,13 @@ class VideoFile(BaseVideo):
         clone = self._add_video_filter("reverse")
         return clone._add_audio_filter("areverse")
 
-    def smart_blur(self, luma_radius: float = 1.0, luma_strength: float = 1.0,
-                   chroma_radius: float = -1.0, chroma_strength: float = -1.0) -> "VideoFile":
+    def smart_blur(
+        self,
+        luma_radius: float = 1.0,
+        luma_strength: float = 1.0,
+        chroma_radius: float = -1.0,
+        chroma_strength: float = -1.0,
+    ) -> "VideoFile":
         """Selective blur for luma or chroma channels.
 
         Args:
@@ -427,8 +442,9 @@ class VideoFile(BaseVideo):
             return self._add_video_filter(f"subtitles='{path}':force_style='{force_style}'")
         return self._add_video_filter(f"subtitles='{path}'")
 
-    def drawtext(self, text: str, x: str = "10", y: str = "10",
-                 fontsize: int = 24, fontcolor: str = "white") -> "VideoFile":
+    def drawtext(
+        self, text: str, x: str = "10", y: str = "10", fontsize: int = 24, fontcolor: str = "white"
+    ) -> "VideoFile":
         """Burn text onto the video.
 
         Args:
@@ -454,8 +470,7 @@ class VideoFile(BaseVideo):
         os.makedirs(os.path.dirname(output) or ".", exist_ok=True)
 
         filters = list(self._video_filters) + ["histogram"]
-        cmd = ["ffmpeg", "-y", "-ss", str(at), "-i", self._path, "-frames:v", "1",
-               "-vf", ",".join(filters), output]
+        cmd = ["ffmpeg", "-y", "-ss", str(at), "-i", self._path, "-frames:v", "1", "-vf", ",".join(filters), output]
         subprocess.run(cmd, check=True)
         return output
 
@@ -468,8 +483,7 @@ class VideoFile(BaseVideo):
         os.makedirs(os.path.dirname(output) or ".", exist_ok=True)
 
         filters = list(self._video_filters) + ["waveform"]
-        cmd = ["ffmpeg", "-y", "-ss", str(at), "-i", self._path, "-frames:v", "1",
-               "-vf", ",".join(filters), output]
+        cmd = ["ffmpeg", "-y", "-ss", str(at), "-i", self._path, "-frames:v", "1", "-vf", ",".join(filters), output]
         subprocess.run(cmd, check=True)
         return output
 
@@ -482,8 +496,7 @@ class VideoFile(BaseVideo):
         os.makedirs(os.path.dirname(output) or ".", exist_ok=True)
 
         filters = list(self._video_filters) + ["vectorscope=mode=color2"]
-        cmd = ["ffmpeg", "-y", "-ss", str(at), "-i", self._path, "-frames:v", "1",
-               "-vf", ",".join(filters), output]
+        cmd = ["ffmpeg", "-y", "-ss", str(at), "-i", self._path, "-frames:v", "1", "-vf", ",".join(filters), output]
         subprocess.run(cmd, check=True)
         return output
 
@@ -522,10 +535,15 @@ class VideoFile(BaseVideo):
         """
         current_fps = self.fps or 30.0
         multiplier = kwargs.pop("multiplier", max(1, round(target_fps / current_fps)))
-        return self._add_ai_step({
-            "type": "interpolate", "engine": engine,
-            "target_fps": target_fps, "multiplier": multiplier, **kwargs,
-        })
+        return self._add_ai_step(
+            {
+                "type": "interpolate",
+                "engine": engine,
+                "target_fps": target_fps,
+                "multiplier": multiplier,
+                **kwargs,
+            }
+        )
 
     def colorize(self, engine: str = "deoldify", **kwargs) -> "VideoFile":
         """Add color to black and white footage using AI.
@@ -550,10 +568,14 @@ class VideoFile(BaseVideo):
             mask_path: Path to mask image (white = regions to fill).
             engine: "lama" (default), "mat".
         """
-        return self._add_ai_step({
-            "type": "inpaint", "engine": engine,
-            "mask_path": os.path.abspath(mask_path), **kwargs,
-        })
+        return self._add_ai_step(
+            {
+                "type": "inpaint",
+                "engine": engine,
+                "mask_path": os.path.abspath(mask_path),
+                **kwargs,
+            }
+        )
 
     def object_remove(self, mask_path: str, engine: str = "propainter", **kwargs) -> "VideoFile":
         """Remove objects (watermarks, timestamps) using AI.
@@ -562,10 +584,14 @@ class VideoFile(BaseVideo):
             mask_path: Path to mask image (white = regions to remove).
             engine: "propainter" (default), "e2fgvi".
         """
-        return self._add_ai_step({
-            "type": "object_remove", "engine": engine,
-            "mask_path": os.path.abspath(mask_path), **kwargs,
-        })
+        return self._add_ai_step(
+            {
+                "type": "object_remove",
+                "engine": engine,
+                "mask_path": os.path.abspath(mask_path),
+                **kwargs,
+            }
+        )
 
     def scratch_remove(self, engine: str = "rtn", **kwargs) -> "VideoFile":
         """Detect and remove tape damage, scratches, dropouts using AI.
@@ -587,8 +613,9 @@ class VideoFile(BaseVideo):
     # Audio filters
     # =========================================================================
 
-    def audio_denoise(self, engine: str = "ffmpeg", noise_reduction: float = 12.0,
-                      noise_floor: float = -30.0, **kwargs) -> "VideoFile":
+    def audio_denoise(
+        self, engine: str = "ffmpeg", noise_reduction: float = 12.0, noise_floor: float = -30.0, **kwargs
+    ) -> "VideoFile":
         """Remove audio noise.
 
         Args:
@@ -688,9 +715,7 @@ class VideoFile(BaseVideo):
             smooth: Smoothing window in milliseconds (default 10.0).
                     Higher = more correction, but may sound unnatural.
         """
-        return self._add_audio_filter(
-            f"asetrate=48000,aresample=48000,rubberband=pitch=1.0:smoothing={smooth}"
-        )
+        return self._add_audio_filter(f"asetrate=48000,aresample=48000,rubberband=pitch=1.0:smoothing={smooth}")
 
     # =========================================================================
     # Presets

@@ -51,6 +51,7 @@ def _stabilize_with_flow_model(model, input_dir: str, output_dir: str, smoothing
 
     # Step 3: Smooth trajectory
     from scipy.ndimage import uniform_filter1d
+
     smooth_x = uniform_filter1d(trajectory_x, size=smoothing)
     smooth_y = uniform_filter1d(trajectory_y, size=smoothing)
 
@@ -77,10 +78,7 @@ def stabilize_raft(step: dict, input_dir: str, output_dir: str) -> None:
         import torch
         from torchvision.models.optical_flow import Raft_Large_Weights, raft_large
     except ImportError:
-        raise ImportError(
-            "RAFT requires PyTorch + torchvision. Install with:\n"
-            "  pip install torch torchvision"
-        )
+        raise ImportError("RAFT requires PyTorch + torchvision. Install with:\n  pip install torch torchvision")
 
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     smoothing = step.get("smoothing", 30)
@@ -117,9 +115,6 @@ def stabilize_flowformer(step: dict, input_dir: str, output_dir: str) -> None:
         model.load_state_dict(checkpoint)
         model.eval()
     except ImportError:
-        raise ImportError(
-            "FlowFormer not found. Clone from:\n"
-            "  https://github.com/drinkingcoder/FlowFormer-Official"
-        )
+        raise ImportError("FlowFormer not found. Clone from:\n  https://github.com/drinkingcoder/FlowFormer-Official")
 
     _stabilize_with_flow_model(model, input_dir, output_dir, smoothing=smoothing)

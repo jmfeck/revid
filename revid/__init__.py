@@ -30,17 +30,21 @@ _READER_MAP = {
 
 def _make_reader(module_path: str, class_name: str):
     """Create a reader function that lazily imports the class."""
+
     def reader(path: str, **kwargs):
         import importlib
+
         mod = importlib.import_module(module_path)
         cls = getattr(mod, class_name)
         return cls(path, **kwargs)
+
     return reader
 
 
 def read(path: str, **kwargs):
     """Read any supported video file. Detects format automatically."""
     import importlib
+
     mod = importlib.import_module("revid.video")
     return mod.VideoFile(path, **kwargs)
 
@@ -49,6 +53,7 @@ def __getattr__(name: str):
     # Classes
     if name in _CLASS_MAP:
         import importlib
+
         module_path, class_name = _CLASS_MAP[name]
         mod = importlib.import_module(module_path)
         cls = getattr(mod, class_name)

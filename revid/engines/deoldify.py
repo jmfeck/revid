@@ -16,11 +16,8 @@ def colorize_deoldify(step: dict, input_dir: str, output_dir: str) -> None:
         from deoldify.visualize import get_video_colorizer
     except ImportError:
         raise ImportError(
-            "DeOldify not found. Install with:\n"
-            "  pip install deoldify\n"
-            "  Or clone https://github.com/jantic/DeOldify"
+            "DeOldify not found. Install with:\n  pip install deoldify\n  Or clone https://github.com/jantic/DeOldify"
         )
-
 
     render_factor = step.get("render_factor", 35)
 
@@ -29,7 +26,9 @@ def colorize_deoldify(step: dict, input_dir: str, output_dir: str) -> None:
     frames = sorted(glob.glob(os.path.join(input_dir, "*.png")))
     for frame_path in frames:
         result = colorizer.get_transformed_image(
-            frame_path, render_factor=render_factor, watermarked=False,
+            frame_path,
+            render_factor=render_factor,
+            watermarked=False,
         )
         out_path = os.path.join(output_dir, os.path.basename(frame_path))
         result.save(out_path)
@@ -44,10 +43,7 @@ def colorize_ddcolor(step: dict, input_dir: str, output_dir: str) -> None:
         import torch
         from PIL import Image
     except ImportError:
-        raise ImportError(
-            "DDColor not found. Install with:\n"
-            "  pip install torch opencv-python"
-        )
+        raise ImportError("DDColor not found. Install with:\n  pip install torch opencv-python")
 
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     input_size = step.get("input_size", 512)
@@ -67,10 +63,7 @@ def colorize_ddcolor(step: dict, input_dir: str, output_dir: str) -> None:
         model.load_state_dict(checkpoint.get("params", checkpoint))
         model.eval()
     except ImportError:
-        raise ImportError(
-            "DDColor model not found. Clone from:\n"
-            "  https://github.com/piddnad/DDColor"
-        )
+        raise ImportError("DDColor model not found. Clone from:\n  https://github.com/piddnad/DDColor")
 
     frames = sorted(glob.glob(os.path.join(input_dir, "*.png")))
     for frame_path in frames:
@@ -112,9 +105,7 @@ def colorize_bigcolor(step: dict, input_dir: str, output_dir: str) -> None:
         from PIL import Image
     except ImportError:
         raise ImportError(
-            "BigColor not found. Install with:\n"
-            "  pip install torch\n"
-            "  Clone https://github.com/KIMGEONUNG/BigColor"
+            "BigColor not found. Install with:\n  pip install torch\n  Clone https://github.com/KIMGEONUNG/BigColor"
         )
 
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
@@ -125,10 +116,7 @@ def colorize_bigcolor(step: dict, input_dir: str, output_dir: str) -> None:
         model = BigColorModel().to(device)
         model.eval()
     except ImportError:
-        raise ImportError(
-            "BigColor model not found. Clone from:\n"
-            "  https://github.com/KIMGEONUNG/BigColor"
-        )
+        raise ImportError("BigColor model not found. Clone from:\n  https://github.com/KIMGEONUNG/BigColor")
 
     frames = sorted(glob.glob(os.path.join(input_dir, "*.png")))
     for frame_path in frames:
