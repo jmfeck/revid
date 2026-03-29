@@ -1,0 +1,65 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "revid"
+version = "0.1.0"
+description = "Simple video restoration for Python"
+readme = "README.md"
+license = "BSD-3-Clause"
+requires-python = ">=3.10"
+authors = [
+    { name = "Joao Manoel Feck", email = "joaomfeck@gmail.com" },
+]
+keywords = [
+    "video", "restoration", "vhs", "ffmpeg", "upscale", "denoise",
+    "deinterlace", "realesrgan", "gfpgan", "demucs", "ai",
+]
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Intended Audience :: Developers",
+    "License :: OSI Approved :: BSD License",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "Topic :: Multimedia :: Video",
+    "Topic :: Multimedia :: Video :: Conversion",
+]
+
+[project.optional-dependencies]
+ai = [
+    "torch",
+    "torchvision",
+    "torchaudio",
+    "realesrgan",
+    "gfpgan",
+    "basicsr",
+    "facexlib",
+    "demucs",
+]
+dev = ["pytest", "ruff"]
+all = [
+    "revid[ai]",
+]
+
+[project.urls]
+Homepage = "https://github.com/jmfeck/revid"
+Repository = "https://github.com/jmfeck/revid"
+Issues = "https://github.com/jmfeck/revid/issues"
+
+[tool.setuptools.packages.find]
+include = ["revid*"]
+
+[tool.ruff]
+target-version = "py310"
+line-length = 120
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "W"]
+ignore = ["E501", "F401"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]

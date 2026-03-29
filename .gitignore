@@ -1,3 +1,22 @@
+# Local testing
+.localtest/
+
+# Claude Code
+.claude/
+
+# AI model weights
+gfpgan/
+weights/
+*.pth
+*.bin
+*.onnx
+*.pb
+
+# Build artifacts
+dist/
+build/
+*.egg-info/
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[codz]
